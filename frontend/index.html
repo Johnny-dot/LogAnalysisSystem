@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log Analysis Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Log Analysis</h1>
+    <section>
+        <h2>Upload Logs</h2>
+        <input type="file" id="logFile" accept=".tar.gz" />
+        <button id="uploadBtn">Upload</button>
+        <div id="uploadStatus"></div>
+    </section>
+    <section>
+        <h2>Query Logs</h2>
+        <label>Level: <input type="text" id="levelInput" placeholder="ERROR" /></label>
+        <button id="queryBtn">Query</button>
+        <table id="resultTable" hidden>
+            <thead>
+                <tr><th>Timestamp</th><th>Level</th><th>Message</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+    <script>
+    document.getElementById('uploadBtn').onclick = async () => {
+        const fileInput = document.getElementById('logFile');
+        if (!fileInput.files.length) return;
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const text = await res.text();
+        document.getElementById('uploadStatus').innerText = text;
+    };
+
+    document.getElementById('queryBtn').onclick = async () => {
+        const level = document.getElementById('levelInput').value;
+        const res = await fetch('/api/analyze' + (level ? `?level=${encodeURIComponent(level)}` : ''));
+        const data = await res.json();
+        const tbody = document.querySelector('#resultTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.timestamp}</td><td>${row.level}</td><td>${row.message}</td>`;
+            tbody.appendChild(tr);
+        });
+        document.getElementById('resultTable').hidden = data.length === 0;
+    };
+    </script>
+</body>
+</html>

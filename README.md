@@ -37,4 +37,14 @@ The backend is implemented in Go using the Gin framework. Parsed log entries are
 - Add aggregation and dashboarding via a React or Vue frontend under `frontend/`.
 - Containerize with Docker and provide Kubernetes manifests.
 
-This repository only includes the backend skeleton. It can be extended to implement the full workflow described in the detailed plan.
+The repository now also contains a very small frontend under `frontend/`. It is a
+single `index.html` file that interacts with the backend API. You can serve it
+with any static file server. For example:
+
+```bash
+cd frontend
+python3 -m http.server 9000
+```
+
+Navigate to <http://localhost:9000> after starting the backend to upload logs and
+query them through the browser.
